@@ -34,10 +34,10 @@ events.on("push", (brigadeEvent, project) => {
     ]
 
     var pipeline = new Group()
-    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
     pipeline.add(acr)
     pipeline.add(helm)
     pipeline.runEach().then( result => {
+        var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
         slack.storage.enabled = false
         slack.env = {
           SLACK_WEBHOOK: project.secrets.SLACK_WEBHOOK,
