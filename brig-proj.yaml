@@ -1,0 +1,17 @@
+project: "lachie83/oscon-brigade-2018"
+repository: "github.com/lachie83/oscon-brigade-2018"
+cloneURL: "https://github.com/lachie83/oscon-brigade-2018"
+sharedSecret: "MySuperSecretPassword"
+github:
+    token: ""
+secrets:
+    acrServer: 
+    acrName: 
+    azServicePrincipal: 
+    azClientSecret: 
+    azTenant: 
+    OWNER: LachlanEvenson
+    CONSUMER_KEY: 
+    CONSUMER_SECRET: 
+    ACCESS_TOKEN: 
+    ACCESS_SECRET: 
