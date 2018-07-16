@@ -24,7 +24,6 @@
             <div class="super-rate-foot super-star-total-rate">
               <at-rate :allow-half="true" :ref="item._id" :id="item._id" @on-change="rateHero(item._id, item.name, $event)"></at-rate>
             </div>
-            <div class="flex-center flex-middle super-star-total-shell"><span class="super-star-text-sms"><a :href="item.description">SEND SMS</a></span></div>
           </at-card>
         </div>
       </div>
