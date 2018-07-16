@@ -1,4 +1,4 @@
-name: kubecon-rating-web
+name: oscon-rating-web
 home: https://github.com/chzbrgr71/kube-con-2018
 version: 1.0
 description: Simple chart for deploying this web app

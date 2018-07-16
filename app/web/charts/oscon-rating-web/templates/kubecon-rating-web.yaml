@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kubecon-rating-web
+  name: oscon-rating-web
   labels:
-    name: kubecon-rating-web
+    name: oscon-rating-web
 spec:
   type: LoadBalancer
   ports:
@@ -11,26 +11,26 @@ spec:
     port: 8080
     targetPort: 8080
   selector:
-    app: kubecon-rating-web
+    app: oscon-rating-web
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kubecon-rating-web
+  name: oscon-rating-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kubecon-rating-web
+      app: oscon-rating-web
   template:
     metadata:
       labels:
-        app: kubecon-rating-web
+        app: oscon-rating-web
     spec:
       imagePullSecrets:
         - name: acr-secret
       containers:
-      - name: kubecon-rating-web
+      - name: oscon-rating-web
         image: "{{.Values.image}}:{{.Values.imageTag}}"
         env:
         - name: SITE_API

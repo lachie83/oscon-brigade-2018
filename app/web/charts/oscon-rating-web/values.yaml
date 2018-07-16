@@ -1,0 +1,6 @@
+# Default values for chart
+image: "levooscon01.azurecr.io/lachlanevenson/oscon-rating-web"
+imageTag: "master-0ce0769"
+apiSites: "http://oscon-api-sites:8080/"
+apiSubjects: "http://oscon-api-subjects:8080/"
+apiRatings: "http://oscon-api-ratings:8080/"

@@ -14,7 +14,7 @@
       <div class="col-lg-6">
       </div>
       <div class="col-lg-12 credits">
-        Brian Redmond at the booth - KubeCon 2018 at København!
+        Lachlan Evenson at the booth - OSCON 2018 Portland!
       </div>
       <div class="col-lg-6">
       </div>
