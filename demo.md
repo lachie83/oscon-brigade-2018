@@ -27,7 +27,6 @@ show `brig-proj.yaml`
     var azServicePrincipal = project.secrets.azServicePrincipal
     var azClientSecret = project.secrets.azClientSecret
     var azTenant = project.secrets.azTenant
-    var gitPayload = JSON.parse(brigadeEvent.payload)
     var today = new Date()
     var image = "lachlanevenson/oscon-rating-web"
     var gitSHA = brigadeEvent.revision.commit.substr(0,7)
@@ -45,7 +44,6 @@ show `brig-proj.yaml`
     ```
 5. 
     ```
-    var acr = new Job("job-runner-acr-builder")
     acr.storage.enabled = false
     acr.image = "microsoft/azure-cli:2.0.41"
     acr.tasks = [
@@ -93,7 +91,7 @@ echo $GH_WEBHOOK | pbcopy
     ```
     export BRIGADE_API=http://$(kubectl get svc brigade-brigade-api -n brigade -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):7745
 
-    helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=$(BRIGADE_API)```
+    helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=${BRIGADE_API} --namespace brigade```
 
     * kubectl port-forward <kashti> 80:80
 

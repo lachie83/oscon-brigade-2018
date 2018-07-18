@@ -17,7 +17,7 @@
         <at-button-group>
           <at-button @click="link('Rating')" icon="icon-star" class="mid-btn" type="primary"  hollow>Start Rating</at-button>
           <at-button @click="link('Leaderboard')" icon="icon-bar-chart-2" class="mid-btn" type="success" hollow>View Leaderboard</at-button>
-          <at-button icon="icon-github" class="mid-btn" type="info" hollow>Steal this code</at-button>
+          <at-button @click="link('https://github.com/lachie83/oscon-brigade-2018')" icon="icon-github" class="mid-btn" type="info" hollow>Use this code</at-button>
         </at-button-group>
       </div>
       <div class="col-lg-3">
