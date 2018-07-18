@@ -1,5 +1,7 @@
 ### brigade install
 
+Install brigade on any Kubernetes cluster
+
 ```
 helm repo add brigade https://azure.github.io/brigade
     
@@ -10,13 +12,13 @@ helm install -n brigade brigade/brigade --set rbac.enabled=false --set vacuum.en
 
 show `brig-proj.yaml`
 
-```helm install --name brig-proj-kubecon-web brigade/brigade-project -f brig-proj-kubecon.yaml```
+```helm install --name brig-proj-oscon-web brigade/brigade-project -f brig-proj-oscon.yaml --namespace brigade```
 
 ### brigade.js
 
 1. 
     ```
-    // variables
+    //variables
     var acrServer = project.secrets.acrServer
     ```
 2. 
@@ -27,10 +29,11 @@ show `brig-proj.yaml`
     var azTenant = project.secrets.azTenant
     var gitPayload = JSON.parse(brigadeEvent.payload)
     var today = new Date()
-    var image = "chzbrgr71/kubecon-rating-web"
+    var image = "lachlanevenson/oscon-rating-web"
     var gitSHA = brigadeEvent.revision.commit.substr(0,7)
     var imageTag = "master-" + String(gitSHA)
     var acrImage = image + ":" + imageTag
+    var helmReleaseNamespace = "default"
     ```
 3. 
     ```
@@ -42,21 +45,22 @@ show `brig-proj.yaml`
     ```
 5. 
     ```
+    var acr = new Job("job-runner-acr-builder")
     acr.storage.enabled = false
-    acr.image = "briaracreu.azurecr.io/chzbrgr71/azure-cli:0.0.5"
+    acr.image = "microsoft/azure-cli:2.0.41"
     acr.tasks = [
         `cd /src/app/web`,
         `az login --service-principal -u ${azServicePrincipal} -p ${azClientSecret} --tenant ${azTenant}`,
-        `az acr build -t ${acrImage} --build-arg BUILD_DATE="${String(today)}" --build-arg VCS_REF=${gitSHA} --build-arg IMAGE_TAG_REF=${imageTag} -f ./Dockerfile --context . -r ${acrName}`
+        `az acr build -t ${acrImage} --build-arg BUILD_DATE="${String(today)}" --build-arg VCS_REF=${gitSHA} --build-arg IMAGE_TAG_REF=${imageTag} -f ./Dockerfile . -r ${acrName}`
     ]
     ```
 6. 
     ```
     var helm = new Job("job-runner-helm")
     helm.storage.enabled = false
-    helm.image = "briaracreu.azurecr.io/chzbrgr71/k8s-helm:v2.8.2"
+    helm.image = "lachlanevenson/k8s-helm:v2.9.1"
     helm.tasks = [
-        `helm upgrade --install --reuse-values kubecon ./src/app/web/charts/kubecon-rating-web --set image=${acrServer}/${image} --set imageTag=${imageTag}`
+        `helm upgrade --install --reuse-values oscon ./src/app/web/charts/oscon-rating-web --set image=${acrServer}/${image} --set imageTag=${imageTag} --namespace ${helmReleaseNamespace}`
     ]
     ```
 7. 
@@ -70,7 +74,7 @@ show `brig-proj.yaml`
 ### Setup GH Webhook
 
 ```
-export GH_WEBHOOK=http://$(kubectl get svc brigade-brigade-github-gw -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):7744/events/github
+export GH_WEBHOOK=http://$(kubectl get svc brigade-brigade-github-gw -n brigade -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):7744/events/github
 echo $GH_WEBHOOK | pbcopy
 ```
 
@@ -86,7 +90,10 @@ echo $GH_WEBHOOK | pbcopy
     
     * Use IP for svc and install
 
-    ```helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=```
+    ```
+    export BRIGADE_API=http://$(kubectl get svc brigade-brigade-api -n brigade -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):7745
+
+    helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=$(BRIGADE_API)```
 
     * kubectl port-forward <kashti> 80:80
 
@@ -96,40 +103,33 @@ echo $GH_WEBHOOK | pbcopy
     
 3. Docs https://github.com/Azure/brigade 
 
-### Add Twitter to project / pipeline
+### Add Slack Incoming webhook to project / pipeline
     
 * Project
     
     ```
-    OWNER: chzbrgr71
-    CONSUMER_KEY: 
-    CONSUMER_SECRET: 
-    ACCESS_TOKEN: 
-    ACCESS_SECRET: 
+    secrets:
+      SLACK_WEBHOOK: <FROM SLACK INCOMING WEBHOOK>
     ```
 
-    ```helm upgrade brig-proj-kubecon-web brigade/brigade-project -f brig-proj-kubecon.yaml```
+    ```helm upgrade brig-proj-oscon-web brigade/brigade-project -f brig-proj-oscon.yaml```
 
 * Pipeline 
     
     ```
-    const twitter = new Job("tweet", "briaracreu.azurecr.io/chzbrgr71/twitter-t")
-    twitter.storage.enabled = false
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
 
-    twitter.env = {
-        OWNER: project.secrets.OWNER,
-        CONSUMER_KEY: project.secrets.CONSUMER_KEY,
-        CONSUMER_SECRET: project.secrets.CONSUMER_SECRET,
-        ACCESS_TOKEN: project.secrets.ACCESS_TOKEN,
-        ACCESS_SECRET: project.secrets.ACCESS_SECRET
-    }
-
-    twitter.tasks = [
-        "env2creds",
-        `t update "Live Tweet from Brigade at KubeCon EU 2018! brigade rørledning færdiggjort med succes"`
-    ]
-
-    twitter.run()
+    pipeline.runEach().then( result => {
+        slack.storage.enabled = false
+        slack.env = {
+          SLACK_WEBHOOK: project.secrets.SLACK_WEBHOOK,
+          SLACK_USERNAME: "BrigadeBot",
+          SLACK_TITLE: ":helm: upgraded oscon",
+          SLACK_MESSAGE: result[1].toString(),
+          SLACK_COLOR: "#0000ff"
+        }
+        return slack.run()
+      })
     ```
 
 ### Modify app 
@@ -144,8 +144,8 @@ http://technosophos.com/2018/04/23/building-brigade-gateways-the-easy-way.html
 
 * Draft Setup
 ```
-az acr login -n briaracreu -g briaracr
-draft config set registry briaracreu.azurecr.io
+az acr login -n levooscon01 -g levooscon01
+draft config set registry levooscon01.azurecr.io
 
 draft pack-repo add https://github.com/technosophos/draft-brigade
 ```
