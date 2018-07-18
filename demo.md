@@ -91,9 +91,10 @@ echo $GH_WEBHOOK | pbcopy
     ```
     export BRIGADE_API=http://$(kubectl get svc brigade-brigade-api -n brigade -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):7745
 
-    helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=${BRIGADE_API} --namespace brigade```
+    helm install --name kashti ./charts/kashti --set service.type=LoadBalancer --set brigade.apiServer=${BRIGADE_API} --namespace brigade
 
     * kubectl port-forward <kashti> 80:80
+    ```
 
 2. `brigadeterm`
 
