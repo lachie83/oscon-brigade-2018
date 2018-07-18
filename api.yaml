@@ -1,0 +1,143 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oscon-api-ratings
+  labels:
+    name: oscon-api-ratings
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: oscon-api-ratings
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oscon-api-ratings
+  labels:
+    app: oscon-api-ratings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oscon-api-ratings
+  template:
+    metadata:
+      labels:
+        app: oscon-api-ratings
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: cosmos-db-secret
+              key: uri
+        - name: PORT
+          value: "8080"
+        image: lachlanevenson/oscon-api-ratings:v4
+        imagePullPolicy: Always
+        name: oscon-api-ratings
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oscon-api-sites
+  labels:
+    name: oscon-api-sites
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: oscon-api-sites
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oscon-api-sites
+  labels:
+    app: oscon-api-sites
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oscon-api-sites
+  template:
+    metadata:
+      labels:
+        app: oscon-api-sites
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: cosmos-db-secret
+              key: uri
+        - name: PORT
+          value: "8080"
+        image: lachlanevenson/oscon-api-sites:v4
+        imagePullPolicy: Always
+        name: oscon-api-sites
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oscon-api-subjects
+  labels:
+    name: oscon-api-subjects
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: oscon-api-subjects
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oscon-api-subjects
+  labels:
+    app: oscon-api-subjects
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oscon-api-subjects
+  template:
+    metadata:
+      labels:
+        app: oscon-api-subjects
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: cosmos-db-secret
+              key: uri
+        - name: PORT
+          value: "8080"
+        image: lachlanevenson/oscon-api-subjects:v4
+        imagePullPolicy: Always
+        name: oscon-api-subjects
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
