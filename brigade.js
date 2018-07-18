@@ -24,6 +24,18 @@ events.on("push", (brigadeEvent, project) => {
         `az login --service-principal -u ${azServicePrincipal} -p ${azClientSecret} --tenant ${azTenant}`,
         `az acr build -t ${acrImage} --build-arg BUILD_DATE="${String(today)}" --build-arg VCS_REF=${gitSHA} --build-arg IMAGE_TAG_REF=${imageTag} -f ./Dockerfile . -r ${acrName}`
     ]
+
+    var helm = new Job("job-runner-helm")
+    helm.storage.enabled = false
+    helm.image = "lachlanevenson/k8s-helm:v2.9.1"
+    helm.tasks = [
+        `helm upgrade --install --reuse-values oscon ./src/app/web/charts/oscon-rating-web --set image=${acrServer}/${image} --set imageTag=${imageTag} --namespace ${helmReleaseNamespace}`
+    ]
+
+    var pipeline = new Group()
+    pipeline.add(acr)
+    pipeline.add(helm)
+    pipeline.runEach()
 })
 
 events.on("after", (event, project) => {
