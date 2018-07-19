@@ -30,6 +30,7 @@ events.on("push", (brigadeEvent, project) => {
         `helm upgrade --install --reuse-values oscon ./src/app/web/charts/oscon-rating-web --set image=${acrServer}/${image} --set imageTag=${imageTag} --namespace ${helmReleaseNamespace}`
     ]
 
+    var pipeline = new Group()
     pipeline.add(acr)
     pipeline.add(helm)
     pipeline.runEach()
