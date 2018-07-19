@@ -31,7 +31,18 @@ events.on("push", (brigadeEvent, project) => {
     ]
 
     var pipeline = new Group()
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
     pipeline.add(acr)
     pipeline.add(helm)
-    pipeline.runEach()
+    pipeline.runEach().then( result => {
+        slack.storage.enabled = false
+        slack.env = {
+          SLACK_WEBHOOK: project.secrets.SLACK_WEBHOOK,
+          SLACK_USERNAME: "BrigadeBot",
+          SLACK_TITLE: ":helm: upgraded oscon",
+          SLACK_MESSAGE: result[1].toString(),
+          SLACK_COLOR: "#0000ff"
+        }
+        return slack.run()
+      })
 })
