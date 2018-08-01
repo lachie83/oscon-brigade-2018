@@ -50,6 +50,4 @@ events.on("push", (brigadeEvent, project) => {
         return slack.run()
       })
     
-
-
 })
