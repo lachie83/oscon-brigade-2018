@@ -19,7 +19,7 @@ events.on("push", (brigadeEvent, project) => {
 
     var acr = new Job("job-runner-acr-builder")
     acr.storage.enabled = false
-    acr.image = "microsoft/azure-cli:2.0.41"
+    acr.image = "microsoft/azure-cli:2.0.43"
     acr.tasks = [
         `cd /src/app/web`,
         `az login --service-principal -u ${azServicePrincipal} -p ${azClientSecret} --tenant ${azTenant}`,
